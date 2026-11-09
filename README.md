@@ -202,3 +202,11 @@ Copyright (c) 2014 [John Dyer][7] and [contributors][8], released under the [New
 [11]: https://github.com/intridea/omniauth/wiki/Strategy-Contribution-Guide
 [12]: http://fontello.com/
 [13]: http://www.rubydoc.info/github/solidusio-contrib/solidus_social/
+
+### Upgrading social identity bindings
+
+Install the engine migrations with `bin/rails railties:install:migrations FROM=solidus_social`
+and run `bin/rails db:migrate`. The unique index requires one row per provider and UID.
+Before upgrading, check for duplicate identities with
+`Spree::UserAuthentication.group(:provider, :uid).having('COUNT(*) > 1').count`.
+Resolve ownership of conflicting rows before migrating. The migration never chooses an owner.

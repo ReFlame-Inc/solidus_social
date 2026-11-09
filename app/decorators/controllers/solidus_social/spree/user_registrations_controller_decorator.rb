@@ -9,6 +9,17 @@ module SolidusSocial
         end
       end
 
+      def create
+        super
+      rescue ActiveRecord::RecordNotUnique
+        pending = session[:omniauth]
+        raise unless pending && ::Spree::UserAuthentication.exists?(pending.slice('provider', 'uid'))
+
+        session.delete(:omniauth)
+        routes = 'UserRegistrationsController'.safe_constantize ? main_app : spree
+        redirect_to routes.login_path, alert: I18n.t('spree.social_identity_conflict')
+      end
+
       private
 
       def build_resource(*args)

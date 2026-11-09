@@ -12,7 +12,7 @@ class Spree::AuthenticationMethod < ApplicationRecord
   end
 
   scope :available_for, lambda { |user|
-    sc = where(environment: ::Rails.env)
+    sc = where(environment: ::Rails.env, active: true, provider: SolidusSocial.configured_providers)
     sc = sc.where(['provider NOT IN (?)', user.user_authentications.map(&:provider)]) if user && !user.user_authentications.empty?
     sc
   }
