@@ -20,6 +20,7 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def omniauth_callback
+    session.delete(:omniauth)
     if request.env['omniauth.error'].present?
       flash[:error] = I18n.t('devise.omniauth_callbacks.failure', kind: auth_hash['provider'], reason: I18n.t('spree.user_was_not_valid'))
       redirect_to social_storefront.login_path
@@ -27,6 +28,10 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     end
 
     authentication = Spree::UserAuthentication.find_by(provider: auth_hash['provider'], uid: auth_hash['uid'])
+
+    if spree_current_user && authentication && authentication.user != spree_current_user
+      return redirect_to social_storefront.account_path, alert: I18n.t('spree.social_identity_conflict')
+    end
 
     if authentication.present? && authentication.try(:user).present?
       flash[:notice] = I18n.t('devise.omniauth_callbacks.success', kind: auth_hash['provider'])
@@ -37,13 +42,17 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       flash[:notice] = I18n.t('devise.sessions.signed_in')
       redirect_to social_storefront.account_path
     else
-      user = Spree.user_class.find_by(email: auth_hash['info']['email']) || Spree.user_class.new
+      email = auth_hash.dig('info', 'email')
+      if email.present? && Spree.user_class.find_for_authentication(email: email)
+        return redirect_to social_storefront.login_path, alert: I18n.t('spree.social_sign_in_to_link')
+      end
+      user = Spree.user_class.new
       user.apply_omniauth(auth_hash)
       if user.save
         flash[:notice] = I18n.t('devise.omniauth_callbacks.success', kind: auth_hash['provider'])
         sign_in_and_redirect :spree_user, user
       else
-        session[:omniauth] = auth_hash.except('extra')
+        session[:omniauth] = { 'provider' => auth_hash['provider'], 'uid' => auth_hash['uid'], 'info' => { 'email' => email } }
         flash[:notice] = I18n.t('spree.one_more_step', kind: auth_hash['provider'].capitalize)
         redirect_to social_storefront.signup_path
         return
@@ -55,6 +64,11 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       current_order.associate_user!(user)
       session[:guest_token] = nil
     end
+  rescue ActiveRecord::RecordNotUnique
+    raise unless Spree::UserAuthentication.exists?(provider: auth_hash['provider'], uid: auth_hash['uid'])
+
+    redirect_to(spree_current_user ? social_storefront.account_path : social_storefront.login_path,
+      alert: I18n.t('spree.social_identity_conflict'))
   end
 
   def failure

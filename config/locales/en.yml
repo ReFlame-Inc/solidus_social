@@ -4,6 +4,8 @@ en:
     omniauth_callbacks:
       success: "You are now signed in with your %{kind} account."
   spree:
+    social_identity_conflict: "This sign-in method is already linked. Please check the account you selected."
+    social_sign_in_to_link: "Sign in to your existing account, then link this sign-in method from your account page."
     user_was_not_valid: User was not valid.
     add_another_service: "Add another service to sign in with:"
     authentications:
