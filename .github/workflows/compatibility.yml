@@ -3,7 +3,7 @@ name: Storefront compatibility
 on:
   pull_request:
   push:
-    branches: [master, 'codex/**']
+    branches: [main, 'codex/**']
   workflow_dispatch:
 
 permissions:
