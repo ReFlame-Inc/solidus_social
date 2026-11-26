@@ -22,4 +22,4 @@ jobs:
     with:
       rails_versions: '["8.1"]'
       solidus_branches: '["v4.8"]'
-      ruby_versions: '["3.4", "4.0"]'
+      ruby_versions: '["4.0"]'
