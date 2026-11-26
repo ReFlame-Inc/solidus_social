@@ -26,7 +26,7 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "going to sign in" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with facebook"
       expect(page).to have_text "You are now signed in with your facebook account."
       click_link "Logout"
@@ -37,7 +37,7 @@ RSpec.describe "Signing in using Omniauth", :js do
 
     # Regression test for #91
     it "attempting to view 'My Account' works" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with facebook"
       expect(page).to have_text "You are now signed in with your facebook account."
       click_link "My Account"
@@ -45,7 +45,7 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "view 'My Account'" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with facebook"
       expect(page).to have_text "You are now signed in with your facebook account."
       click_link "My Account"
@@ -78,7 +78,7 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "going to sign in" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with github"
       expect(page).to have_text "You are now signed in with your github account."
       click_link "Logout"
@@ -89,7 +89,7 @@ RSpec.describe "Signing in using Omniauth", :js do
 
     # Regression test for #91
     it "attempting to view 'My Account' works" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with github"
       expect(page).to have_text "You are now signed in with your github account."
       click_link "My Account"
@@ -97,7 +97,7 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "view 'My Account'" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with github"
       expect(page).to have_text "You are now signed in with your github account."
       click_link "My Account"
@@ -130,7 +130,7 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "going to sign in" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with google_oauth2"
       expect(page).to have_text "You are now signed in with your google_oauth2 account."
       click_link "Logout"
@@ -141,7 +141,7 @@ RSpec.describe "Signing in using Omniauth", :js do
 
     # Regression test for #91
     it "attempting to view 'My Account' works" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with google_oauth2"
       expect(page).to have_text "You are now signed in with your google_oauth2 account."
       click_link "My Account"
@@ -149,7 +149,7 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "view 'My Account'" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with google_oauth2"
       expect(page).to have_text "You are now signed in with your google_oauth2 account."
       click_link "My Account"
@@ -182,9 +182,9 @@ RSpec.describe "Signing in using Omniauth", :js do
     end
 
     it "going to sign in" do
-      visit spree.login_path
+      visit login_path
       click_on "Login with twitter"
-      expect(page).to have_text "Please confirm your email address to continue".upcase
+      expect(page).to have_text(/Please confirm your email address to continue/i)
       fill_in "Email", with: "user@example.com"
       click_button "Create"
       expect(page).to have_text "Welcome! You have signed up successfully."
