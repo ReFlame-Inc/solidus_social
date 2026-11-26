@@ -2,7 +2,7 @@
 
 # Spree::StoreController comes from the legacy solidus_frontend; generated
 # storefronts define ::StoreController in the host application instead.
-class Spree::UserAuthenticationsController < ("Spree::StoreController".safe_constantize || "::StoreController".safe_constantize || Spree::BaseController)
+class Spree::UserAuthenticationsController < "Spree::StoreController".safe_constantize || "::StoreController".safe_constantize || Spree::BaseController
   include SolidusSocial::StorefrontRoutes
 
   def index
