@@ -105,7 +105,7 @@ unless Rails.application.routes.url_helpers.method_defined?(:login_path)
     end
   end
 
-  Rails.application.routes.append do
+  Rails.application.routes.prepend do
     get "/favicon.ico", to: proc { [204, {}, []] }
     root to: "storefront_test/home#index"
 
