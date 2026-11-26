@@ -41,7 +41,7 @@ unless Rails.application.routes.url_helpers.method_defined?(:login_path)
       end
     end
 
-    class HomeController < ActionController::Base
+    class HomeController < ::ApplicationController
       include ControllerHelpers
 
       def index
@@ -93,7 +93,7 @@ unless Rails.application.routes.url_helpers.method_defined?(:login_path)
     end
   end
 
-  class UsersController < ActionController::Base
+  class UsersController < ::ApplicationController
     include StorefrontTest::ControllerHelpers
 
     def show
