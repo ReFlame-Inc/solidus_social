@@ -13,15 +13,24 @@ module SolidusSocial
 
       def build_resource(*args)
         super
-        @spree_user.apply_omniauth(session[:omniauth]) if session[:omniauth]
-        @spree_user
+        resource.apply_omniauth(session[:omniauth]) if session[:omniauth]
+        resource
       end
 
       def clear_omniauth
-        session[:omniauth] = nil unless @spree_user.new_record?
+        session.delete(:omniauth) if resource&.persisted?
       end
 
-      ::Spree::UserRegistrationsController.prepend self
+      # The legacy solidus_frontend ships Spree::UserRegistrationsController,
+      # while generated storefronts (solidus_starter_frontend) define a
+      # top-level UserRegistrationsController in the host application.
+      %w[UserRegistrationsController Spree::UserRegistrationsController].each do |name|
+        controller = name.safe_constantize
+        next unless controller
+        next if controller.ancestors.include?(self)
+
+        controller.prepend(self)
+      end
     end
   end
 end

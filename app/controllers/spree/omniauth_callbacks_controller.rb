@@ -5,6 +5,7 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   include Spree::Core::ControllerHelpers::Order
   include Spree::Core::ControllerHelpers::Auth
   include Spree::Core::ControllerHelpers::Store
+  include SolidusSocial::StorefrontRoutes
 
   class << self
     def provides_callback_for(*providers)
@@ -34,7 +35,7 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       spree_current_user.apply_omniauth(auth_hash)
       spree_current_user.save!
       flash[:notice] = I18n.t("devise.sessions.signed_in")
-      redirect_back_or_default(account_url)
+      redirect_back_or_default(storefront_path(:account_path))
     else
       user = Spree.user_class.find_by(email: auth_hash["info"]["email"]) || Spree.user_class.new
       user.apply_omniauth(auth_hash)
@@ -42,9 +43,15 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
         flash[:notice] = I18n.t("devise.omniauth_callbacks.success", kind: auth_hash["provider"])
         sign_in_and_redirect :spree_user, user
       else
-        session[:omniauth] = auth_hash.except("extra")
+        # Keep only what registration needs: the full auth hash (tokens, raw
+        # profile) can overflow the cookie session store.
+        session[:omniauth] = {
+          "provider" => auth_hash["provider"],
+          "uid" => auth_hash["uid"],
+          "info" => {"email" => auth_hash.dig("info", "email")}
+        }
         flash[:notice] = I18n.t("spree.one_more_step", kind: auth_hash["provider"].capitalize)
-        redirect_to new_spree_user_registration_url
+        redirect_to storefront_path(:signup_path, :new_spree_user_registration_path)
         return
       end
     end
@@ -58,7 +65,7 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def failure
     set_flash_message :alert, :failure, kind: failed_strategy.name.to_s.humanize, reason: failure_message
-    redirect_to spree.login_path
+    redirect_to storefront_path(:login_path)
   end
 
   def passthru
@@ -67,5 +74,11 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def auth_hash
     request.env["omniauth.auth"]
+  end
+
+  private
+
+  def after_sign_in_path_for(resource)
+    stored_location_for(resource) || storefront_path(:account_path)
   end
 end

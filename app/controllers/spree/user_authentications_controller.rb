@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-class Spree::UserAuthenticationsController < Spree::StoreController
+# Spree::StoreController comes from the legacy solidus_frontend; generated
+# storefronts define ::StoreController in the host application instead.
+class Spree::UserAuthenticationsController < ("Spree::StoreController".safe_constantize || "::StoreController".safe_constantize || Spree::BaseController)
+  include SolidusSocial::StorefrontRoutes
+
   def index
     @authentications = spree_current_user.user_authentications if spree_current_user
   end
@@ -9,6 +13,6 @@ class Spree::UserAuthenticationsController < Spree::StoreController
     @authentication = spree_current_user.user_authentications.find(params[:id])
     @authentication.destroy
     flash[:notice] = I18n.t("spree.destroy", scope: :authentications)
-    redirect_to spree.account_path
+    redirect_to storefront_path(:account_path)
   end
 end
