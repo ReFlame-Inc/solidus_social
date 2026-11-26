@@ -5,6 +5,7 @@ unless Rails.application.routes.url_helpers.method_defined?(:login_path)
     LAYOUT = <<~ERB
       <!DOCTYPE html>
       <html>
+        <head><link rel="icon" href="data:,"></head>
         <body>
           <nav>
             <% if spree_current_user %>
@@ -105,6 +106,7 @@ unless Rails.application.routes.url_helpers.method_defined?(:login_path)
   end
 
   Rails.application.routes.append do
+    get "/favicon.ico", to: proc { [204, {}, []] }
     root to: "storefront_test/home#index"
 
     devise_scope :spree_user do
