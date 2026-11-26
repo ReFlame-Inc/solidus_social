@@ -6,16 +6,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 branch = ENV.fetch("SOLIDUS_BRANCH", "main")
 gem "solidus", github: "solidusio/solidus", branch: branch
 
-# The solidus_frontend gem has been pulled out since v3.2
-if branch >= "v3.2"
-  gem "solidus_frontend"
-elsif branch == "main"
-  gem "solidus_frontend", github: "solidusio/solidus_frontend"
-else
-  gem "solidus_frontend", github: "solidusio/solidus", branch: branch
-end
-
-rails_version = ENV.fetch("RAILS_VERSION", "8.0")
+rails_version = ENV.fetch("RAILS_VERSION", "8.1")
 gem "rails", "~> #{rails_version}"
 gem "json", "< 3", require: false
 
