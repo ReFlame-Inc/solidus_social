@@ -20,6 +20,6 @@ jobs:
   test:
     uses: solidusio/test-solidus-extension/.github/workflows/test.yml@main
     with:
-      rails_versions: '["8.0"]'
+      rails_versions: '["8.1"]'
       solidus_branches: '["v4.8"]'
       ruby_versions: '["3.4", "4.0"]'
