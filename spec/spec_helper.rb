@@ -11,6 +11,7 @@ require File.expand_path("dummy/config/environment.rb", __dir__)
 # Requires factories and other useful helpers defined in spree_core.
 require "solidus_dev_support/rspec/feature_helper"
 require "capybara/selenium/driver_specializations/chrome_driver"
+require "capybara/selenium/nodes/chrome_node"
 require "uri"
 
 module Chrome158CdpStorageClearCompat
@@ -41,7 +42,18 @@ module Chrome158CdpStorageClearCompat
   end
 end
 
+module Chrome158DetachedNodeCompat
+  def visible?
+    super
+  rescue Selenium::WebDriver::Error::UnknownError => e
+    raise unless e.message.include?("Node with given id does not belong to the document")
+
+    raise Selenium::WebDriver::Error::StaleElementReferenceError, e.message
+  end
+end
+
 Capybara::Selenium::Driver::ChromeDriver.prepend(Chrome158CdpStorageClearCompat)
+Capybara::Selenium::ChromeNode.prepend(Chrome158DetachedNodeCompat)
 
 SolidusDevSupport::TestingSupport::Factories.load_for(SolidusSocial::Engine, Spree::Auth::Engine)
 
