@@ -186,6 +186,17 @@ RSpec.describe Spree::OmniauthCallbacksController, type: :controller do
           it "assigns authentication to existing user" do
             expect { controller.github }.to change(@user.user_authentications, :count).by(1)
           end
+
+          it "refuses to link or sign in when email_verified is false" do
+            allow(controller).to receive(:auth_hash).and_return(
+              "provider" => "google_oauth2",
+              "uid" => "999",
+              "info" => {"email" => "spree@gmail.com", "email_verified" => false}
+            )
+            expect(controller).not_to receive(:sign_in_and_redirect)
+            expect(controller).to receive(:redirect_to)
+            expect { controller.github }.not_to change(@user.user_authentications, :count)
+          end
         end
       end
     end
