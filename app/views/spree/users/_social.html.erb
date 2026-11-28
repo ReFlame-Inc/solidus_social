@@ -12,7 +12,7 @@
                 <%= user_authentication.provider %>
               </div>
               <div class="uid columns two"><%= user_authentication.uid %></div>
-              <%= link_to 'X', spree.user_authentication_path(user_authentication), data: { confirm: I18n.t('spree.remove_authentication_option_confirmation') }, method: :delete, class: 'remove' %>
+              <%= button_to 'X', spree.user_authentication_path(user_authentication), method: :delete, form: { data: { turbo_confirm: I18n.t('spree.remove_authentication_option_confirmation') } }, class: 'remove' %>
             </div>
           <% end %>
           <div class="clear"></div>

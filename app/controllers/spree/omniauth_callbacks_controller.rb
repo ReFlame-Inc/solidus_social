@@ -37,7 +37,14 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       flash[:notice] = I18n.t("devise.sessions.signed_in")
       redirect_back_or_default(storefront_path(:account_path))
     else
-      user = Spree.user_class.find_by(email: auth_hash["info"]["email"]) || Spree.user_class.new
+      email = auth_hash.dig("info", "email").presence
+      if email && email_explicitly_unverified?(auth_hash)
+        flash[:error] = I18n.t("devise.omniauth_callbacks.failure", kind: auth_hash["provider"], reason: I18n.t("spree.user_was_not_valid"))
+        redirect_to storefront_path(:login_path)
+        return
+      end
+
+      user = (email && Spree.user_class.find_by(email: email)) || Spree.user_class.new
       user.apply_omniauth(auth_hash)
       if user.save
         flash[:notice] = I18n.t("devise.omniauth_callbacks.success", kind: auth_hash["provider"])
@@ -60,6 +67,7 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       user = spree_current_user || authentication.user
       current_order.associate_user!(user)
       session[:guest_token] = nil
+      cookies.delete(:guest_token) if respond_to?(:cookies, true) && !cookies.nil?
     end
   end
 
@@ -77,6 +85,15 @@ class Spree::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   private
+
+  def email_explicitly_unverified?(auth_hash)
+    return false unless auth_hash.respond_to?(:dig)
+
+    info_verified = auth_hash.dig("info", "email_verified")
+    raw_verified = auth_hash.dig("extra", "raw_info", "email_verified")
+    email_verified = info_verified.nil? ? raw_verified : info_verified
+    email_verified == false || email_verified == "false"
+  end
 
   def after_sign_in_path_for(resource)
     stored_location_for(resource) || storefront_path(:account_path)
